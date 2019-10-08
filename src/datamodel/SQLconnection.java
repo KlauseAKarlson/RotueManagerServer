@@ -25,6 +25,7 @@ public class SQLconnection {
 	 * afterTransaction() should always be called after a multi line transaction as it re-enables autocommit
 	 */
 	private Connection SQLServer=null;
+	private PasswordHandler PassHandle;
 	
 	public static void main(String[] args) 
 	{
@@ -57,6 +58,7 @@ public class SQLconnection {
 		login.close();
 		
 		SQLServer=DriverManager.getConnection(URL, uname,pswd);
+		PassHandle=new PasswordHandler(this);
 	}
 	/*
 	 * 	transaction template for copy and paste
@@ -70,6 +72,10 @@ public class SQLconnection {
 			this.afterTransaction();
 		}
 	 */
+	public PasswordHandler getPasswordHandler()
+	{
+		return PassHandle;
+	}
 	
 	public ActiveRoute getActiveRoute(int RouteID) throws SQLException
 	{

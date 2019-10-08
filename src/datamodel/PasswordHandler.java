@@ -50,7 +50,7 @@ public class PasswordHandler {
 				{
 					return dID;//valid password, return statement will break the loop
 				}else {
-					return -1;//wrong password, return statement will breka the loop
+					return -1;//wrong password, return statement will break the loop
 				}//check password
 			}//check driver name
 		}//loop through drivers
