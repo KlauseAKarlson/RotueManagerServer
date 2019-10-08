@@ -7,5 +7,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.8.0_221"/>
+	<classpathentry kind="lib" path="C:/Users/KlauseKarlson/eclipse-workspace/commons-codec-1.13/commons-codec-1.13.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

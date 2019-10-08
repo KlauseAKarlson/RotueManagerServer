@@ -11,6 +11,8 @@ import java.util.Arrays;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 
+import org.apache.commons.codec.binary.Hex;
+
 public class PasswordHandler {
 
 	
@@ -25,7 +27,9 @@ public class PasswordHandler {
 	public void setPassword(int DriverID, String password) throws SQLException
 	{
 		byte[] passHash = getPassHash(DriverID, password);
-		Database.execute("UPDATE Drivers SET PasswordHash="+passHash+" WHERE DriverID="+DriverID);
+		//https://docs.microsoft.com/en-us/sql/t-sql/functions/cast-and-convert-transact-sql?view=sql-server-2017
+		String binary="CONVERT ( BINARY(64), '"+Hex.encodeHexString(passHash)+"' , 2 ) ";
+		Database.execute("UPDATE Drivers SET PasswordHash="+binary+"  WHERE DriverID="+DriverID);
 	}
 	
 	public int login(String driverName, String password) throws SQLException
@@ -34,19 +38,24 @@ public class PasswordHandler {
 		 * this function will return the driver ID if the driver is an authorized user with correct password
 		 * it will instead return -1 if given an invalid driver name or password
 		 */
-		ResultSet drivers=Database.getData("SELECT DriverID, DriverName, PasswordHash FROM Drivers");
+		ResultSet drivers=Database.getData("SELECT DriverID, Name, PasswordHash FROM Drivers");
 		//we check driver names in the application layer as a protection against injection
 		String dName;
 		int dID;
 		while (drivers.next())
 		{
 			dID=drivers.getInt("DriverID");
-			dName=drivers.getString("DriverName");
-			if(dName.equals(driverName));
+			dName=drivers.getString("Name");
+			boolean match =driverName.equals(dName);
+			if(match)
 			{
+				
 				//valid name, now check password
-				byte[] passwordHash=drivers.getBytes("PasswordHash");
-				if ( Arrays.equals(passwordHash, getPassHash(dID, password)) )
+				byte[] savedHash=drivers.getBytes("PasswordHash");
+				//System.out.println(Hex.encodeHex(savedHash));
+				byte[] providedHash=getPassHash(dID, password);
+				//System.out.println(Hex.encodeHex(providedHash));
+				if ( Arrays.equals(savedHash, providedHash ) )
 				{
 					return dID;//valid password, return statement will break the loop
 				}else {
@@ -90,6 +99,7 @@ public class PasswordHandler {
 		return salt;
 	}//end get salt
 	
+	
 	private byte[] generateSalt(int DriverID) throws SQLException
 	{
 		byte[] salt=new byte[8];
@@ -98,7 +108,8 @@ public class PasswordHandler {
 
 			random.nextBytes(salt);
 			//save salt
-			Database.execute("UPDATE Drivers SET Salt="+salt+" WHERE DriverID="+DriverID);
+			String binary="CONVERT ( BINARY(8), '"+Hex.encodeHexString(salt)+"' , 2 ) ";
+			Database.execute("UPDATE Drivers SET Salt="+binary+" WHERE DriverID="+DriverID);
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

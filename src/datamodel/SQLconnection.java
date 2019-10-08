@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Iterator;
 
+import org.apache.commons.codec.binary.Hex;
+
 import com.microsoft.sqlserver.jdbc.*;//SQL server driver, requires JDK 1.8
 
 import datamodel.ActiveRoute.BusStop;
@@ -32,13 +34,9 @@ public class SQLconnection {
 		
 		try {
 			SQLconnection con=new SQLconnection();
-			ActiveRoute r=con.getActiveRoute(1);
-			ActiveRoute r2=new ActiveRoute(r.getCSV());
-			Iterator<BusStop> iter=r2.getIterator();
-			while (iter.hasNext())
-			{
-				System.out.println(iter.next().getAddress());
-			}
+			//con.getPasswordHandler().setPassword(3, "01234");
+			int driverID=con.getPasswordHandler().login("Nomen", "01234");
+			System.out.print(driverID);
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

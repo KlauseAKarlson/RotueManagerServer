@@ -18,7 +18,7 @@ public class DriverEditor {
 		Database=db;
 		DriverID=driverID;
 		//get data
-		ResultSet data=Database.getData("SELECT DriverName, CDL_ExpirationDate FROM Drivers WHERE DriverID="+DriverID);
+		ResultSet data=Database.getData("SELECT Name, CDL_ExpirationDate FROM Drivers WHERE DriverID="+DriverID);
 		data.next();
 		DriverName=data.getString(1);
 		cdlExpires=data.getDate(2);
@@ -31,7 +31,7 @@ public class DriverEditor {
 		data.next();
 		int driverID=data.getInt(1)+1;
 		DriverName=DriverName.replace("'", "").replace("\\", "");
-		db.execute("INSERT INTO Drivers (DriverID, DriverName)"
+		db.execute("INSERT INTO Drivers (DriverID, Name)"
 				+ "VALUES ("+driverID+",'"+DriverName+"')");
 		return new DriverEditor(db, driverID);
 	}
@@ -39,7 +39,7 @@ public class DriverEditor {
 	public boolean setName(String name)
 	{
 		try {
-			Database.execute("UPDATE Drivers SET DriverName="+name+" WHERE DriverID="+DriverID);
+			Database.execute("UPDATE Drivers SET Name="+name+" WHERE DriverID="+DriverID);
 			DriverName=name;
 			return true;
 		} catch (SQLException e) {
@@ -54,8 +54,11 @@ public class DriverEditor {
 	{
 		@SuppressWarnings("deprecation")//this is the most useful constructor for this class, whoever decided to depreciate it should be beaten to death with a wet noodle
 		Date update=new Date(year, month, day);
+		System.out.print(update.toString());
 		try {
-			Database.execute("UPDATE Drivers SET CDL_ExpirationDate="+update+" WHERE DriverID="+DriverID);
+			
+			Database.execute("UPDATE Drivers SET CDL_ExpirationDate='"+update.toString()+"' WHERE DriverID="+DriverID);
+			//dates must be inside single quotes or will be evaluated as integer expressions
 			cdlExpires=update;
 			return true;
 		} catch (SQLException e) {
