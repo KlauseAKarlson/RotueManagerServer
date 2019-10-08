@@ -51,10 +51,8 @@ public class AssignmentEditor {
 			{
 				a = new Assignment(RouteID);//Assignment ctor adds it to linked lists
 				//load and localize start/end times
-				Time start=DriverAssignments.getTime("StartTime");
-				a.Start = start==null?null:start.toLocalTime();
-				Time end =DriverAssignments.getTime("EndTime");
-				a.End=end==null?null:end.toLocalTime();
+				a.Start=DriverAssignments.getTime("StartTime");
+				a.End =DriverAssignments.getTime("EndTime");
 			}//end if route not null
 			if (driverID != 0)
 			{
@@ -75,6 +73,29 @@ public class AssignmentEditor {
 			}//end if driver not null
 		}//end while loop
 	}//end ctor
+	
+	public void save() throws SQLException
+	{
+	 	Database.beginTransaction();
+		try {
+			//clear assignments and then save current assignments
+			//because assignments don't have a key
+			Database.execute("DELETE FROM RouteAssignment");
+			for (Assignment a:Assignments)
+			{
+				int rID=a.getID();
+				String dID=a.driver==null? "NULL":""+a.driver.DriverID;//get driver ID if not null
+				
+				Database.execute("INSERT INTO RouteAssignment (RouteID, DriverID, StartTime, EndTime)"
+						+ "VALUES ("+rID+","+dID+","+a.Start+","+a.End+")");
+			}
+			Database.comitTransaction();
+		}catch(SQLException e) {
+			Database.rollbackTransaction();
+		}finally {
+			Database.afterTransaction();
+		}
+	}
 	
 	public void delete(Assignment a)
 	{
@@ -128,7 +149,7 @@ public class AssignmentEditor {
 		private int RouteID;
 		private String RouteName;
 		private Driver driver;
-		private LocalTime Start,End;
+		private Time Start,End;
 
 		private Assignment(int routeID)
 		{
@@ -138,7 +159,6 @@ public class AssignmentEditor {
 			Assignments.add(this);
 			Unassigned.add(this);
 		}
-		
 		public void remove()
 		{
 			//removes this from its current driver
@@ -162,10 +182,10 @@ public class AssignmentEditor {
 		
 		public int getID() {return RouteID;}
 		public String getName() {return RouteName;}
-		public LocalTime getStart() {return Start;}
-		public void setStart(LocalTime s) {Start=s;}
-		public LocalTime getEnd(){return End;}
-		public void setEnd(LocalTime e) {End=e;}
+		public Time getStart() {return Start;}
+		public void setStart(Time s) {Start=s;}
+		public Time getEnd(){return End;}
+		public void setEnd(Time e) {End=e;}
 		
 	}//end assignment
 }

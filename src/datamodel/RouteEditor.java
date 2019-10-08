@@ -52,7 +52,7 @@ public class RouteEditor {
 			Route.add(new StopListing(id));
 		}
 	}
-	public void sync() throws SQLException
+	public void save() throws SQLException
 	{
 		//https://docs.oracle.com/javase/tutorial/jdbc/basics/transactions.html
 		Database.beginTransaction();

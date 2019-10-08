@@ -58,11 +58,6 @@ public class SQLconnection {
 		
 		SQLServer=DriverManager.getConnection(URL, uname,pswd);
 	}
-	
-	public ActiveRoute getActiveRoute(int RouteID) throws SQLException
-	{
-		return new ActiveRoute(this, RouteID);
-	}
 	/*
 	 * 	transaction template for copy and paste
 	 	this.beginTransaction();
@@ -76,14 +71,51 @@ public class SQLconnection {
 		}
 	 */
 	
+	public ActiveRoute getActiveRoute(int RouteID) throws SQLException
+	{
+		return new ActiveRoute(this, RouteID);
+	}
+	public RouteEditor editRoute(int RouteID)throws SQLException
+	{
+		return new RouteEditor(this, RouteID);
+	}
+	public RouteEditor newRoute(String routeName) throws SQLException
+	{
+		/*
+		 * create a new route and return an editor
+		 * returns a null route if the the transaction fails
+		 */
+	 	this.beginTransaction();
+	 	RouteEditor nRoute=null;
+		try {
+			//create new RouteID
+			ResultSet max=getData("SELECT Max(RouteID) FROM RouteNames");
+			max.next();
+			int RouteID=max.getInt(1);
+			//create route
+			execute("INSERT INTO RouteNames (RouteID, RouteName)"
+					+ "VALUES ("+RouteID+",'"+routeName+"')");
+			
+			nRoute=new RouteEditor(this, RouteID);
+			this.comitTransaction();
+		}catch(SQLException e) {
+			this.rollbackTransaction();
+			e.printStackTrace();
+		}finally {
+			this.afterTransaction();
+		}
+		return nRoute;
+	}
+	
 	public void deleteRoute(int routeID) throws SQLException
 	{
 		this.beginTransaction();
 		try {
 			//first remove any references in busses
-			this.execute("UPDATE Busses SET RouteID=NULL WHERE RouteID="+routeID+";");
+			this.execute("UPDATE RouteAssignment SET RouteID=NULL WHERE RouteID="+routeID);
 			//delete route
-			this.execute("DELETE FROM Routes WHERE RouteID="+routeID+";");
+			this.execute("DELETE FROM Routes WHERE RouteID="+routeID);
+			this.execute("DELETE FROM RouteNames WHERE RouteID="+routeID);
 			
 			this.comitTransaction();
 		}catch(SQLException e) {

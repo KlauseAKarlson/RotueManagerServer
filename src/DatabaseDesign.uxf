@@ -57,7 +57,8 @@ Primary Key: (RouteID,StopNumber)
 --
 DriverID: int primary key
 Name: Char(32) not null
-PasswordHash: Byte(64)
+PasswordHash: binary(64)
+Salt: binary(8)
 CDLExpires: Date</panel_attributes>
     <additional_attributes/>
   </element>
