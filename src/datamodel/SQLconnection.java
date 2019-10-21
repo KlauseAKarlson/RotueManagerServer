@@ -29,7 +29,7 @@ public class SQLconnection {
 	private Connection SQLServer=null;
 	private PasswordHandler PassHandle;
 	
-	public static void main(String[] args) 
+	public static void main(String[] args) //for testing and debugging
 	{
 		
 		try {
